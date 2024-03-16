@@ -1,6 +1,6 @@
 {
     "cmake.sourceDirectory": "${workspaceFolder}",
-    "cmake.buildDirectory": "${workspaceFolder}/src/build",
+    "cmake.buildDirectory": "${workspaceFolder}/src/DualSimplex/build",
     "files.associations": {
         "cerrno": "cpp",
         "array": "cpp",
@@ -59,6 +59,20 @@
         "filesystem": "cpp",
         "chrono": "cpp",
         "codecvt": "cpp",
-        "ratio": "cpp"
+        "ratio": "cpp",
+        "dense": "cpp",
+        "semaphore": "cpp",
+        "core": "cpp",
+        "valarray": "cpp",
+        "future": "cpp",
+        "condition_variable": "cpp",
+        "list": "cpp",
+        "set": "cpp",
+        "unordered_set": "cpp",
+        "hash_map": "cpp",
+        "mutex": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp",
+        "cinttypes": "cpp"
     }
 }

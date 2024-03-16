@@ -1,0 +1,11 @@
+FEASIBLE TABLEAU
+
+SOLUTION: feasible optimal solution reached.
+
+SIZE: 4 x 7
+
+          d                    x1         x2         x3         x4         x5         x6     
+c         5.33                 0.33       3.67       0          0          1.33       0      
+x6        -8.67 + 1.00M        -1.67      -4.33      0          0          -0.67      1.00   
+x4        6.33                 1.33       3.67       0          1.00       0.33       0      
+x3        2.33                 0.33       1.67       1.00       0          0.33       0      

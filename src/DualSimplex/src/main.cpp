@@ -1,5 +1,5 @@
 #include "utils.hpp"
-#include "DualSimplex.hpp"
+#include "DualSolver.hpp"
 #include <stdlib.h>
 #include <filesystem>
 #include <iostream>
@@ -7,7 +7,7 @@
 namespace fs = std::filesystem;
 
 inline void executeDualSimplex(const char *filePath) {
-    DualSimplex tableau(filePath);
+    DualSolver tableau(filePath);
     tableau.startDualSimplex();
 }
 
@@ -21,7 +21,7 @@ inline void filesExecuteDualSimplex(const char *path) {
     } else if (fs::is_regular_file(path)) {
         executeDualSimplex(path);
     } else {
-        std::cerr << "Unexistent path " << path << " specified" << std::endl;
+        std::cerr << "Unexistent path " << path << " specified as target." << std::endl;
     }
 }
 

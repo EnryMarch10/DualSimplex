@@ -1,0 +1,13 @@
+
+
+Tableau represented as read.
+The first row contains the objective function negate and reduced costs.
+The first column contains the known terms.
+x1..n are the decision variables.
+
+SIZE: 3 x 6
+
+          d                    x1         x2         x3         x4         x5     
+c         0                    0          -1.00      -5.00      1.00       0      
+x1        4.00                 1.00       2.00       -1.00      1.00       0      
+x5        3.00                 0          3.00       4.00       -1.00      1.00   

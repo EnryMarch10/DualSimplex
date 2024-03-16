@@ -1,19 +1,26 @@
 cmake_minimum_required(VERSION 3.20)
 project(DualSimplex VERSION 0.1.0 LANGUAGES C CXX)
 
+set(SRC src/DualSimplex/src)
+
 include_directories(
     include
-    src
-    src/utils
-    src/List
-    src/DualSimplex
+    ${SRC}
+    ${SRC}/utils
+    ${SRC}/Tableau
+    ${SRC}/Reader
+    ${SRC}/Solver
 )
 
 set(SOURCES
-    src/main.cpp
-    src/utils/utils.cpp
-    src/List/ArrayList.cpp
-    src/DualSimplex/DualSimplex.cpp
+    ${SRC}/main.cpp
+    ${SRC}/utils/utils.cpp
+    ${SRC}/Tableau/TableauFilesManager.cpp
+    ${SRC}/Solver/DualSolver.cpp
 )
 
+find_package (Eigen3 3.4 REQUIRED NO_MODULE)
+
 add_executable(DualSimplex ${SOURCES})
+
+target_link_libraries (DualSimplex Eigen3::Eigen)

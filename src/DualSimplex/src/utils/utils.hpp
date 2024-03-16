@@ -3,6 +3,7 @@
 
 #include <string>
 #include <complex>
+#include <Eigen/Dense>
 
 // Files locations
 #define FILES_IN_PATH "../data/in/"
@@ -32,7 +33,6 @@
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
-// GENERAL
 template<class T>
 void swap(T& a, T& b)
 {
@@ -41,22 +41,13 @@ void swap(T& a, T& b)
     b = tmp;
 }
 
-// COMPLEX NUMBERS
-template<class T>
-bool complexIsZero(const std::complex<T>& value)
-{
-    return (value.real() == 0.0) && (value.imag() == 0.0);
-}
+bool complexIsZero(const Eigen::dcomplex& value);
 
-template<class T>
-bool complexIsNotZero(const std::complex<T>& value)
-{
-    return (value.real() != 0.0) || (value.imag() != 0.0);
-}
+bool complexIsNotZero(const Eigen::dcomplex& value);
 
 std::string getFileNameWithoutExtension(const std::string& input);
 
-std::string getFormattedComplex(const std::complex<double>& num);
+std::string getFormattedComplex(const Eigen::dcomplex& num);
 
 std::string getFormattedDouble(const double& num);
 

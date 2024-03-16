@@ -1,0 +1,11 @@
+FEASIBLE TABLEAU
+
+Add artificial variable so as to make the costs positive.
+
+SIZE: 4 x 7
+
+          d                    x1         x2         x3         x4         x5         x6     
+c         5.00M                0          4.00       0          6.00       0          5.00   
+x1        4.00 + 1.00M         1.00       3.00       0          2.00       0          1.00   
+x5        3.00 - 4.00M         0          -1.00      0          -5.00      1.00       -4.00  
+x3        1.00M                0          1.00       1.00       1.00       0          1.00   

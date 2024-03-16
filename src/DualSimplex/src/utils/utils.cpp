@@ -18,7 +18,17 @@ std::string getFileNameWithoutExtension(const std::string& input) {
     }
 }
 
-std::string getFormattedComplex(const std::complex<double>& num) {
+bool complexIsZero(const Eigen::dcomplex& value)
+{
+    return (value.real() == 0.0) && (value.imag() == 0.0);
+}
+
+bool complexIsNotZero(const Eigen::dcomplex& value)
+{
+    return (value.real() != 0.0) || (value.imag() != 0.0);
+}
+
+std::string getFormattedComplex(const Eigen::dcomplex& num) {
     std::string real;
     if (num.real() == 0.0) {
         real = "0";
