@@ -47,7 +47,7 @@ or the * symbol.
 So there are tree types of path that the program can interpret:
 - file path -> it has to be a valid one;
 - folder path -> it means all the files inside the specified folder;
-- * symbol -> means all the files inside the _./src/DualSimplex/data/in_ path.
+- \* symbol -> means all the files inside the _./src/DualSimplex/data/in_ path.
 
 In the example above only _./src/DualSimplex/data/in/test.dat_ is interpreted.
 
