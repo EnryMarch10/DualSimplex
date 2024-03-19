@@ -28,11 +28,20 @@ Iterations of pivoting are done till the Dual is unbounded, Primal is infeasible
 
 ### Notations
 
-$x = \begin{pmatrix} x_{1} \\ ... \\ x_{n} \\ \end{pmatrix}$, column vector ($x \in \mathbb{R}^n$)
+```math
+x = \begin{pmatrix} x_{1} \\ ... \\ x_{n} \\ \end{pmatrix}
+```
+column vector ($x \in \mathbb{R}^n$)
 
-$c^{T} = \begin{pmatrix} c_{1} & ... & c_{n} \end{pmatrix}$, row vector
+```math
+c^{T} = \begin{pmatrix} c_{1} & ... & c_{n} \end{pmatrix}
+```
+row vector
 
-$c^{T}x = \sum_{j=1..n}{c_{j}x_{j}}$, dot product
+```math
+c^{T}x = \sum_{j=1..n}{c_{j}x_{j}}
+```
+dot product
 
 ### Linear Programming Problem
 
@@ -41,7 +50,7 @@ It is important to consider the number of decision variables, the number of equa
 
 The linear programming problem is always examined in its _standard form_:
 
-$
+```math
 \left \{
 \begin{array}{ll}
     \min{c^{T}x}\\
@@ -49,7 +58,7 @@ $
     x \ge 0
 \end{array}
 \right.
-$
+```
 
 Where:
 - $x$ is the column vector of the decision variables (of size $n \times 1$);
@@ -65,14 +74,14 @@ The equations are read and saved in a tabular format called Tableau.
 
 To understand the Tableau format it is used in the program, let's consider that $z$ and $d$ can be written in:
 
-$
+```math
 \left \{
 \begin{array}{ll}
     z = c_{B}^{T}x_{B} + c_{F}^{T}x_{F}\\
     d = Bx_{B} + Fx_{F}
 \end{array}
 \right.
-$
+```
 
 Where $B$ is a base.
 
@@ -87,14 +96,14 @@ The Tableau can be initialized in:
 
 It can be reached:
 
-$
+```math
 \left \{
 \begin{array}{ll}
     -c_{B}^{T}B^{-1}d = (c_{F}^{T}-c_{B}^{T}B^{-1}F)x_{F}\\
     B^{-1}d = B^{-1}Bx_{B} + B^{-1}Fx_{F}\\
 \end{array}
 \right.
-$
+```
 
 Considering its _canonical form_ (the tableau format considered in the program):
 
@@ -120,9 +129,9 @@ $c_{f}^{T} - c_{b}^{T}B^{-1}d$, are the reduced costs
 Tableau canonical form of test.dat input file:
 | -z     | d  | x1 | x2 | x3    | x4    | x5    |
 | --     | -- | -- | -- | --    | --    | --    |
-| **c**  |  1 |  0 |  0 | -3.67 |  0.67 |  0.33 |
-| **x1** |  2 |  1 |  0 | -3.67 |  1.67 | -0.67 |
-| **x2** |  1 |  0 |  1 |  1.33 | -0.33 | -0.33 |
+| c      |  1 |  0 |  0 | -3.67 |  0.67 |  0.33 |
+| x1     |  2 |  1 |  0 | -3.67 |  1.67 | -0.67 |
+| x2     |  1 |  0 |  1 |  1.33 | -0.33 | -0.33 |
 
 The upper left element is $-z$, so the negated value of the objective function for the minimization problem.
 The first numeric row is the reduced costs row.
