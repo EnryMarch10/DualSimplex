@@ -100,7 +100,7 @@ It can be reached:
 \left \{
 \begin{array}{ll}
     -c_{B}^{T}B^{-1}d = (c_{F}^{T}-c_{B}^{T}B^{-1}F)x_{F}\\
-    B^{-1}d = B^{-1}Bx_{B} + B^{-1}Fx_{F}\\
+    B^{-1}d = B^{-1}Bx_{B} + B^{-1}Fx_{F}
 \end{array}
 \right.
 ```
