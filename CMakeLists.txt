@@ -8,7 +8,6 @@ include_directories(
     ${SRC}
     ${SRC}/utils
     ${SRC}/Tableau
-    ${SRC}/Reader
     ${SRC}/Solver
 )
 
@@ -24,3 +23,10 @@ find_package (Eigen3 3.4 REQUIRED NO_MODULE)
 add_executable(DualSimplex ${SOURCES})
 
 target_link_libraries (DualSimplex Eigen3::Eigen)
+
+# Set compiler flags
+if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(DualSimplex PRIVATE -Wall -Wextra -Werror -Wpedantic)
+elseif (CMAKE_C_COMPILER_ID MATCHES "MSVC")
+    target_compile_options(DualSimplex PRIVATE /W4 /Wall /WX)
+endif()

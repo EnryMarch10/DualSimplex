@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <filesystem>
 #include <iostream>
+#include <string>
 
 namespace fs = std::filesystem;
 
@@ -21,13 +22,15 @@ inline void filesExecuteDualSimplex(const char *path) {
     } else if (fs::is_regular_file(path)) {
         executeDualSimplex(path);
     } else {
-        std::cerr << "Unexistent path " << path << " specified as target." << std::endl;
+        std::cerr << "Inexistent path '" << path << "' specified as target." << std::endl;
     }
 }
 
 int main(int argc, char** argv) {
     for (int i = 1; i < argc; i++) {
-        if (fs::exists(argv[i])) {
+        if (strcmp(argv[i], "*") == 0) {
+            filesExecuteDualSimplex(FILES_IN_PATH);
+        } else if (fs::exists(argv[i])) {
             filesExecuteDualSimplex(argv[i]);
         } else {
             filesExecuteDualSimplex((std::string(FILES_IN_PATH) + argv[i]).c_str());

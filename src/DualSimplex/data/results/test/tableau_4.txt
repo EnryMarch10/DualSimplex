@@ -1,0 +1,17 @@
+TABLEAU dual feasible (variables >= equations, base and costs >= 0)
+
+
+COSTS POSITIVE
+
+Added artificial variable so as to make base dual feasible now (positive costs).
+
+Tableau rows x cols: 4 x 7
+
+OBJECTIVE FUNCTION VALUE:
+-1.00 - 3.67M       
+
+          d                       x1                      x2                      x3                      x4                      x5                      x6                  
+c         1.00 + 3.67M            0                       0                       0                       4.33                    4.00                    3.67                
+x1        2.00 + 3.67M            1.00                    0                       0                       5.33                    3.00                    3.67                
+x2        1.00 - 1.33M            0                       1.00                    0                       -1.67                   -1.00                   -1.33               
+x3        1.00M                   0                       0                       1.00                    1.00                    1.00                    1.00                

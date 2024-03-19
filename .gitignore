@@ -2,6 +2,7 @@
 
 tmp/
 build/
+out/
 
 ## C++ ##
 

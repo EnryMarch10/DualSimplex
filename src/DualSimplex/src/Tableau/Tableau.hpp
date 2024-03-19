@@ -9,51 +9,55 @@ namespace Eigen {
 }
 
 typedef struct Tableau {
-    // Value of the objective function
-    Eigen::dcomplex z;
-    // Column that contains known terms
+    // Value of the objective function as a minimization problem (negated result if you want to minimize)
+    Eigen::dcomplex objFunc;
+    // Column that contains known terms adapted to the minimization problem
     Eigen::ArrayXcd knownTermsCol;
     // Row that contains variables reduced costs
-    Eigen::RowVectorXd costsRow;
+    Eigen::ArrayXd redCostsRow;
     // Matrix of coefficients
-    Eigen::MatrixXd coefficientsMatrix;
+    Eigen::MatrixXd coeffMatrix;
 
     // Column in base for each row
     Eigen::ArrayXindex varInBaseCol;
 
     // Number of equations
-    const Eigen::Index getM(void) {
+    Eigen::Index getM(void) {
         return knownTermsCol.size();
     }
     // Number of variables
-    const Eigen::Index getN(void) {
-        return costsRow.size();
+    Eigen::Index getN(void) {
+        return redCostsRow.size();
     }
 
     // Number of rows in tableau
-    const Eigen::Index getRows(void) {
+    Eigen::Index getRows(void) {
         return getM() + 1;
     }
     // Number of columns in tableau
-    const Eigen::Index getCols(void) {
+    Eigen::Index getCols(void) {
         return getN() + 1;
     }
 
     bool isValid(void) {
-        return coefficientsMatrix.rows() == getM() // Coefficient matrix number of rows
-            && coefficientsMatrix.cols() == getN() // Coefficient matrix number of columns
-            && costsRow.size() == getN() // Reduced costs row size
+        return coeffMatrix.rows() == getM() // Coefficient matrix number of rows
+            && coeffMatrix.cols() == getN() // Coefficient matrix number of columns
+            && redCostsRow.size() == getN() // Reduced costs row size
             && knownTermsCol.size() == getM() // Known terms column size
             && varInBaseCol.size() == getM(); // Variables in base column size
     }
 
+    bool isFeasible(void) {
+        return getM() <= getN(); // Variables >= equations
+    }
+
     bool isDualFeasible(void) {
-        if (!isValid()) {
+        if (!isFeasible()) {
             return false;
         }
 
         // Reduced costs are positive or zero
-        if ((costsRow.array() < 0.0).any()) {
+        if ((redCostsRow < 0.0).any()) {
             return false;
         }
 

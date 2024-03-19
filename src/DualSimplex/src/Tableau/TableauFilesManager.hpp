@@ -10,10 +10,7 @@ public:
     TableauFilesManager(Tableau *const tableau, const char *filePath);
     void readTableau(void);
     const std::string getNextFilename(void);
-    void printTableau(const std::string& title, const std::string& description, const std::string& filename = "");
-    void printTableauWithCheck(const std::string& title, const std::string& description, const std::string& filename = "");
-    void printTableauFeasible(const std::string& description);
-    void printTableauInfeasible(const std::string& description);
+    void printTableau(const std::string& description, const std::string& title = "", const std::string& filename = "");
     ~TableauFilesManager(void) { }
 
 private:
@@ -22,9 +19,8 @@ private:
     unsigned long counter = 1;
     Tableau *tableau;
 
-    void printTableau(const std::string& title, const std::string& description,
-                      const std::string& filename, const bool doCheck,
-                      const bool isDualFeasible);
+    void printTableauShort(const std::string& caption, const std::string& description,
+                           const std::string& title, const std::string& filename);
 
 };
 

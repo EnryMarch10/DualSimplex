@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <filesystem>
+#include <vector>
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -32,7 +33,7 @@ TableauFilesManager::TableauFilesManager(Tableau *const tableau, const char *fil
 }
 
 const string TableauFilesManager::getNextFilename(void) {
-    return outPartialFilePath + to_string(counter++);
+    return outPartialFilePath + to_string(counter++) + FILES_OUT_EXTENSION;
 }
 
 void TableauFilesManager::readTableau(void) {
@@ -42,20 +43,18 @@ void TableauFilesManager::readTableau(void) {
     // READ number of rows and columns
     unsigned long m, n;
     assert(fscanf(fin, "%lu %lu", &n, &m) > 0);
-    assert(m <= n);
-    // TODO: After the matrix is read check max rank condition or remove dependent rows and check again m <=n
+    // It's not important to check here m <= n because there could be linear dependence between equations
+    // This check will be done later on
 
     // Slack or surplus terms for each row
-    double slackOrSurplus[m];
-    // Known terms for each row
-    double knownTerms[m];
+    vector<double> slackOrSurplus(m);
 
     tableau->varInBaseCol.resize(m);
     tableau->varInBaseCol.fill(0);
 
     tableau->knownTermsCol.resize(m);
     // READ known terms column
-    for (Eigen::Index i = 0; i < m; i++) {
+    for (unsigned long i = 0; i < m; i++) {
         double di;
         assert(fscanf(fin, "%lf", &(di)) > 0);
         tableau->knownTermsCol[i] = di;
@@ -65,7 +64,7 @@ void TableauFilesManager::readTableau(void) {
     Eigen::Index artificialCount = 0;
 
     // READ slack or surplus vector
-    for (Eigen::Index i = 0; i < m; i++) {
+    for (unsigned long i = 0; i < m; i++) {
         assert(fscanf(fin, "%lf", &(slackOrSurplus[i])) > 0);
         assert(slackOrSurplus[i] == 0.0
             || slackOrSurplus[i] == 1.0
@@ -77,25 +76,11 @@ void TableauFilesManager::readTableau(void) {
     }
 
     unsigned long na = n + artificialCount;
-    tableau->coefficientsMatrix = Eigen::MatrixXd::Zero(m, na);
+    tableau->coeffMatrix = Eigen::MatrixXd::Zero(m, na);
 
-    // Fill with slacks and surplus (artificial variables)
-    Eigen::Index k = 0;
-    for (Eigen::Index j = n; j < na; j++) {
-        while (slackOrSurplus[k] == 0.0) {
-            k++;
-        }
-        tableau->coefficientsMatrix(k, j) = slackOrSurplus[k];
-        if (slackOrSurplus[k] == -1.0) {
-            tableau->coefficientsMatrix.row(k) = -tableau->coefficientsMatrix.row(k);
-        }
-        tableau->varInBaseCol[k] = j + 1;
-        k++;
-    }
-
-    tableau->costsRow = Eigen::ArrayXd::Zero(na);
+    tableau->redCostsRow = Eigen::ArrayXd::Zero(na);
     // READ the coefficients matrix A
-    for (Eigen::Index j = 0; j < n; j++) {
+    for (unsigned long j = 0; j < n; j++) {
         bool inBase = true;
 
         // READ column reduced cost
@@ -104,48 +89,119 @@ void TableauFilesManager::readTableau(void) {
         if (cc != 0.0) {
             inBase = false;
         }
-        tableau->costsRow[j] = cc;
+        tableau->redCostsRow[j] = cc;
 
         // READ number of non zeros coefficients
-        unsigned long not0; // TODO: vedi come fare per il tipo
+        unsigned long not0;
         assert(fscanf(fin, "%lu", &not0) > 0);
         if (inBase && not0 != 1) {
             inBase = false;
         }
 
         // READ non zeros coefficients
-        unsigned long rr; // TODO: vedi come fare per il tipo
+        unsigned long rr;
         for (unsigned long k = 0; k < not0; k++) {
             assert(fscanf(fin, "%lu", &rr) > 0);
-            assert(fscanf(fin, "%lf", &(tableau->coefficientsMatrix(rr - 1, j))) > 0);
+            assert(fscanf(fin, "%lf", &(tableau->coeffMatrix(rr - 1, j))) > 0);
         }
-        if (inBase && (tableau->coefficientsMatrix(rr - 1, j) == 1.0)) {
+        if (inBase && (tableau->coeffMatrix(rr - 1, j) == 1.0)) {
             tableau->varInBaseCol[rr - 1] = j + 1;
         }
     }
 
+    // Fill with slacks and surplus (artificial variables)
+    Eigen::Index k = 0;
+    for (unsigned long j = n; j < na; j++) {
+        while (slackOrSurplus[k] == 0.0) {
+            k++;
+        }
+        tableau->coeffMatrix(k, j) = slackOrSurplus[k];
+        if (slackOrSurplus[k] == -1.0) {
+            tableau->coeffMatrix.row(k) *= -1;
+            tableau->knownTermsCol[k] *= -1;
+        }
+        tableau->varInBaseCol[k] = j + 1;
+        k++;
+    }
+
     assert(fclose(fin) == 0);
 
-    printTableauInfeasible("Tableau represented as read.\n"
+    printTableau("Tableau represented as read.\n"
     "The first row contains the objective function negate and reduced costs.\n"
     "The first column contains the known terms.\n"
-    "x1..n are the decision variables");
+    "x1..n are the decision variables.", "AS READ");
 }
 
-void TableauFilesManager::printTableau(const string& title, const string& description,
-                                 const string& filename, const bool doCheck,
-                                 const bool isDualFeasible = true) {
-    string caption;
-    if (doCheck) {
-        if (isDualFeasible) {
-            assert(tableau->isDualFeasible());
-            caption = "FEASIBLE TABLEAU";
-        } else {
-            assert(tableau->isValid());
-            caption = "INFEASIBLE TABLEAU";
-        }
+void TableauFilesManager::printTableauShort(const string& caption, const string& description,
+                                            const string& title, const string& filename) {
+
+    FILE *fout;
+    if (filename == "") {
+        fout = fopen(getNextFilename().c_str(), "w");
     } else {
-        caption = title;
+        fout = fopen(filename.c_str(), "w");
+    }
+    assert(fout != NULL);
+
+    assert(fprintf(fout, "%s\n\n\n", caption.c_str()) > 0);
+
+    if (title != "") {
+        assert(fprintf(fout, "%s\n\n", title.c_str()) > 0);
+    }
+
+    assert(description != "");
+    assert(fprintf(fout, "%s", description.c_str()) > 0);
+    assert(fprintf(fout, "\n\n") > 0);
+
+    assert(fprintf(fout, "Tableau rows x cols: %lu x %lu\n\n", tableau->getRows(), tableau->getCols()) > 0);
+
+    assert(fprintf(fout, "OBJECTIVE FUNCTION VALUE:\n") > 0);
+    assert(fprintf(fout, "%s\n\n", getFormattedComplex(-tableau->objFunc).c_str()) > 0);
+
+    assert(fprintf(fout, "OBJECTIVE FUNCTION VALUE (negated):\n") > 0);
+    assert(fprintf(fout, "%s\n\n", getFormattedComplex(tableau->objFunc).c_str()) > 0);
+
+    assert(fprintf(fout, "KNOWN TERMS:\n") > 0);
+    for (Eigen::Index i = 0; i < tableau->getM(); i++) {
+        assert(fprintf(fout, "%s (x%-5lu -> x%-5lu)  ",
+            getFormattedComplex(tableau->knownTermsCol[i]).c_str(),
+            i + 1,
+            tableau->varInBaseCol[i]) > 0);
+        if ((i + 1) % 3 == 0) {
+            assert(fprintf(fout, "\n") > 0);
+        }
+    }
+    assert(fprintf(fout, "\n\n") > 0);
+
+    assert(fprintf(fout, "COSTS:\n") > 0);
+    for (Eigen::Index j = 0; j < tableau->getN(); j++) {
+        assert(fprintf(fout, "%s (x%-5lu)  ", getFormattedDouble(tableau->redCostsRow[j]).c_str(), j + 1) > 0);
+        if ((j + 1) % 3 == 0) {
+            assert(fprintf(fout, "\n") > 0);
+        }
+    }
+    assert(fprintf(fout, "\n") > 0);
+
+    assert(fclose(fout) == 0);
+}
+
+void TableauFilesManager::printTableau(const string& description, const string& title, const string& filename) {
+    string caption;
+#ifdef DEBUG
+    assert(tableau->isValid());
+#endif
+
+    if (tableau->isDualFeasible()) {
+        caption = "TABLEAU dual feasible (variables >= equations, base and costs >= 0)";
+    } else if (tableau->isFeasible()) {
+        caption = "TABLEAU feasible (variables >= equations but not dual feasible)";
+    } else {
+        caption = "TABLEAU infeasible (no variables >= equations rows linearly dependents)";
+    }
+
+    if (tableau->getRows() > 300 || tableau->getCols() > 300) {
+        printTableauShort(caption, description, title, filename);
+        return;
     }
 
     FILE *fout;
@@ -156,15 +212,22 @@ void TableauFilesManager::printTableau(const string& title, const string& descri
     }
     assert(fout != NULL);
 
-    assert(fprintf(fout, "%s\n\n", caption.c_str()) > 0);
+    assert(fprintf(fout, "%s\n\n\n", caption.c_str()) > 0);
+
+    if (title != "") {
+        assert(fprintf(fout, "%s\n\n", title.c_str()) > 0);
+    }
 
     assert(description != "");
     assert(fprintf(fout, "%s", description.c_str()) > 0);
-    assert(fprintf(fout, ".\n\n") > 0);
+    assert(fprintf(fout, "\n\n") > 0);
 
-    assert(fprintf(fout, "SIZE: %lu x %lu\n\n", tableau->getRows(), tableau->getCols()) > 0);
+    assert(fprintf(fout, "Tableau rows x cols: %lu x %lu\n\n", tableau->getRows(), tableau->getCols()) > 0);
 
-    if (tableau->getCols() > 0LU) {
+    assert(fprintf(fout, "OBJECTIVE FUNCTION VALUE:\n") > 0);
+    assert(fprintf(fout, "%s\n\n", getFormattedComplex(-tableau->objFunc).c_str()) > 0);
+
+    if (tableau->getCols() > 0) {
         assert(fprintf(fout, "          d") > 0);
         for (Eigen::Index i = 0U; i < COMPLEX_LENGTH - 1; i++) {
             assert(fprintf(fout, " ") > 0);
@@ -178,12 +241,12 @@ void TableauFilesManager::printTableau(const string& title, const string& descri
     }
 
     assert(fprintf(fout, "\nc     ") > 0);
-    assert(fprintf(fout, "    %s", getFormattedComplex(tableau->z).c_str()) > 0);
+    assert(fprintf(fout, "    %s", getFormattedComplex(tableau->objFunc).c_str()) > 0);
     for (Eigen::Index j = 0; j < tableau->getN(); j++) {
-        assert(fprintf(fout, "    %s", getFormattedDouble(tableau->costsRow[j]).c_str()) > 0);
+        assert(fprintf(fout, "    %s", getFormattedDouble(tableau->redCostsRow[j]).c_str()) > 0);
     }
 
-    for (Eigen::Index i = 0UL; i < tableau->getM(); i++) {
+    for (Eigen::Index i = 0; i < tableau->getM(); i++) {
         if (tableau->varInBaseCol[i] == 0) {
             assert(fprintf(fout, "\n?     ") > 0);
         } else {
@@ -191,26 +254,10 @@ void TableauFilesManager::printTableau(const string& title, const string& descri
         }
         assert(fprintf(fout, "    %s", getFormattedComplex(tableau->knownTermsCol[i]).c_str()) > 0);
         for (Eigen::Index j = 0; j < tableau->getN(); j++) {
-            assert(fprintf(fout, "    %s", getFormattedDouble(tableau->coefficientsMatrix(i, j)).c_str()) > 0);
+            assert(fprintf(fout, "    %s", getFormattedDouble(tableau->coeffMatrix(i, j)).c_str()) > 0);
         }
     }
     assert(fprintf(fout, "\n") > 0);
 
     assert(fclose(fout) == 0);
-}
-
-void TableauFilesManager::printTableau(const string& title, const string& description, const string& filename) {
-    printTableau(title, description, filename, false);
-}
-
-void TableauFilesManager::printTableauWithCheck(const string& title, const string& description, const string& filename) {
-    printTableau(title, description, filename, true, true);
-}
-
-void TableauFilesManager::printTableauFeasible(const string& description) {
-    printTableau("", description, "", true);
-}
-
-void TableauFilesManager::printTableauInfeasible(const string& description) {
-    printTableau("", description, "", false);
 }

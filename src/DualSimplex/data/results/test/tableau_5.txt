@@ -1,0 +1,17 @@
+TABLEAU dual feasible (variables >= equations, base and costs >= 0)
+
+
+SOLUTION
+
+Optimal solution reached (Primal solution = Dual solution).
+
+Tableau rows x cols: 4 x 7
+
+OBJECTIVE FUNCTION VALUE:
+-5.33               
+
+          d                       x1                      x2                      x3                      x4                      x5                      x6                  
+c         5.33                    0.33                    3.67                    0                       0                       1.33                    0                   
+x6        -8.67 + 1.00M           -1.67                   -5.33                   0                       0                       0.33                    1.00                
+x4        6.33                    1.33                    3.67                    0                       1.00                    0.33                    0                   
+x3        2.33                    0.33                    1.67                    1.00                    0                       0.33                    0                   

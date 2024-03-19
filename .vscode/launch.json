@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/src/DualSimplex/build/DualSimplex",
-            "args": ["test.dat", "afiro.dat"],
+            "args": ["'*'"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/src/DualSimplex/build",
             "environment": [],
