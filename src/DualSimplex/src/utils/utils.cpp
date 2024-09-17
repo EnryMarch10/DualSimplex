@@ -131,13 +131,11 @@ std::vector<Eigen::Index> getDependentRows(const Eigen::MatrixXd& matrix) {
     return dependentIndices;
 }
 
-bool complexIsZero(const Eigen::dcomplex& value)
-{
+bool complexIsZero(const Eigen::dcomplex& value) {
     return (value.real() == 0.0) && (value.imag() == 0.0);
 }
 
-bool complexIsNotZero(const Eigen::dcomplex& value)
-{
+bool complexIsNotZero(const Eigen::dcomplex& value) {
     return (value.real() != 0.0) || (value.imag() != 0.0);
 }
 
