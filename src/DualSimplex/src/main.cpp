@@ -22,7 +22,7 @@ inline void filesExecuteDualSimplex(const char *path) {
     } else if (fs::is_regular_file(path)) {
         executeDualSimplex(path);
     } else {
-        std::cerr << "Inexistent path '" << path << "' specified as target." << std::endl;
+        std::cerr << "Nonexistent path '" << path << "' specified as target." << std::endl;
     }
 }
 
